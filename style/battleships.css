@@ -1,5 +1,13 @@
+* {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
 body {
   font-family: sans-serif;
+  padding: 0;
+  margin: 0;
 }
 
 #body-wrapper {
@@ -20,10 +28,11 @@ body {
   font-family: monospace;
   line-height: 230%;
   overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .board div.selected {
-  background: orange;
+  background: darkblue;
 }
 
 #controls {
@@ -34,19 +43,19 @@ body {
 
 #controls button {
   display: none;
-  -moz-box-flex: 1;       /* Mozilla */
-  -webkit-box-flex: 1;    /* WebKit */
+  -moz-box-flex: 1;
+  -webkit-box-flex: 1;
   padding: 5px;
   border: 0;
 }
 
-#board-opponent {
-  background: pink;
-}
+/* #board-opponent { */
+/*   background: pink; */
+/* } */
 
-#board-mine {
-  background: lightblue;
-}
+/* #board-mine { */
+/*   background: lightblue; */
+/* } */
 
 .ship {
   background: blue;
@@ -97,7 +106,7 @@ body {
 }
 
 #board-view button.selected {
-  background: blue;
+  background: #333;
   opacity: 1;
   color: white;
 }

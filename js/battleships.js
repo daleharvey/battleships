@@ -7,6 +7,30 @@ BS.EMPTY = 0;
 BS.HIT = 1;
 BS.MISS = 2;
 
+var ShipDef = {
+  sub: {
+    name: 'Submarine',
+    size: 3
+  },
+  battleShip: {
+    name: 'BattleShip',
+    size: 4
+  },
+  carrier: {
+    name: 'Aircraft Carrier',
+    size: 5
+  },
+  destroyer: {
+    name: 'Destroyer',
+    size: 3
+  },
+  patrol: {
+    name: 'Patrol Boat',
+    size: 2
+  }
+};
+
+
 var BattleShipBoard = function() {
 
   var api = {};
@@ -36,10 +60,7 @@ var BattleShipBoard = function() {
       for (var name in ships) {
         allDead = allDead && ships[name].dead;
       }
-      return {
-        sankShip: shipObj.dead,
-        wonGame: allDead
-      };
+      return {wonGame: allDead, ship: shipObj};
     }
     boardState[y][x] = BS.MISS;
     return false;
@@ -52,24 +73,12 @@ var BattleShipBoard = function() {
   };
 
   api.chooseRandomShipLocations = function() {
-    ships = {
-      sub: {
-        dead: false,
-        location: {x:0, y:0},
-        size: 2,
-        vertical: false,
-        hits: 0
-      },
-      battleShip: {
-        dead: false,
-        location: {x:0, y: 0},
-        size: 4,
-        vertical: false,
-        hits: 0
-      }
-    };
-
-    for (var ship in ships) {
+    for (var ship in ShipDef) {
+      ships[ship] = JSON.parse(JSON.stringify(ShipDef[ship]));
+      ships[ship].location = {x: 0, y: 0};
+      ships[ship].vertical = false;
+      ships[ship].dead = false;
+      ships[ship].hits = 0;
       var positioned = false;
       while (!positioned) {
         ships[ship].vertical = !Math.round(Math.random());
@@ -146,12 +155,10 @@ var BattleShipBoard = function() {
         var square = document.createElement('div');
         square.setAttribute('data-x', x);
         square.setAttribute('data-y', y);
-        square.textContent = state;
 
         if (ship) {
           if (showShips) {
             square.classList.add('ship');
-            square.textContent = 's';
           }
 
           if (ship === selected) {
@@ -191,6 +198,8 @@ var BattleShips = function() {
   var player1;
   var player2;
 
+  var hasTakenShot = false;
+
   var shotListener;
   var listener;
 
@@ -217,6 +226,7 @@ var BattleShips = function() {
         api.takeAITurn();
       } else {
         state(PLAYER1_TURN);
+        hasTakenShot = false;
       }
     }
   };
@@ -244,11 +254,14 @@ var BattleShips = function() {
     player2 = new BattleShipBoard();
     player1.chooseRandomShipLocations();
     player2.chooseRandomShipLocations();
+    player1.selectShip('carrier');
     state(CHOOSING_POSITIONS);
     api.redraw();
   };
 
   api.startGame = function() {
+    player1.selectShip(null);
+    api.redraw();
     state(PLAYER1_TURN);
   };
 
@@ -279,9 +292,10 @@ var BattleShips = function() {
       api.redraw();
     } else if (!playersBoard && playing === PLAYER1_TURN) {
       var key = x + ':' + y;
-      if (!(key in playerTurns)) {
+      if (!(key in playerTurns) && !hasTakenShot) {
         playerTurns[key] = true;
         var result = player2.takeShot(x, y);
+        hasTakenShot = true;
         shotTaken(true, x, y, result);
       }
     }
@@ -314,7 +328,7 @@ var BattleShipUI = (function() {
   var ids = [
     'new-game', 'board-mine', 'board-opponent', 'clear-selection', 'game-status',
     'start-game', 'random-positions', 'rotate-ship', 'controls', 'view-opponents-board',
-    'view-my-board', 'battleships', 'present'
+    'view-my-board', 'battleships', 'present', 'restart-game'
   ];
 
   var battleships = new BattleShips();
@@ -394,6 +408,7 @@ var BattleShipUI = (function() {
   dom.randomPositions.addEventListener('mousedown', api.randomPositions);
   dom.clearSelection.addEventListener('mousedown', api.clearSelection);
   dom.startGame.addEventListener('mousedown', api.startGame);
+  dom.restartGame.addEventListener('mousedown', api.newGame);
 
   dom.viewMyBoard.addEventListener('mousedown', api.viewMyBoard);
   dom.viewOpponentsBoard.addEventListener('mousedown', api.viewOpponentsBoard);
@@ -431,7 +446,12 @@ var BattleShipUI = (function() {
     
     var complete = function() { 
       dom.present.removeEventListener('transitionend', complete, true);
-      dom.gameStatus.textContent = result === false ? 'Miss!' : 'Hit!';
+      if (result === false) {
+        dom.gameStatus.textContent = 'Miss';
+      } else {
+        dom.gameStatus.textContent = result.ship.dead ?
+          'You sunk my ' + result.ship.name : 'Hit!';
+      }
       battleships.redraw();
       setTimeout(function() { 
         dom.present.style.display = 'none';
