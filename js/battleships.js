@@ -58,7 +58,7 @@ var BattleShipBoard = function() {
         location: {x:0, y:0},
         size: 2,
         vertical: false,
-        hits: 0,
+        hits: 0
       },
       battleShip: {
         dead: false,
@@ -72,7 +72,7 @@ var BattleShipBoard = function() {
     for (var ship in ships) {
       var positioned = false;
       while (!positioned) {
-        ships[ship].vertical = !Math.round(Math.random())
+        ships[ship].vertical = !Math.round(Math.random());
         positioned = api.moveShip(ship, Math.round(Math.random() * 9),
                                   Math.round(Math.random() * 9));
       }
@@ -122,14 +122,15 @@ var BattleShipBoard = function() {
       var xy = ship.location;
 
       while (--size >= 0) {
-        var point = ship.vertical ? {x: xy.x, y: xy.y + size} : {x: xy.x + size, y: xy.y};
+        var point = ship.vertical ? 
+          {x: xy.x, y: xy.y + size} : {x: xy.x + size, y: xy.y};
         if (point.y === y && point.x === x) {
           return name;
         }
       }
     }
     return false;
-  }
+  };
 
   api.selectShip = function(ship) {
     selected = ship;
@@ -170,10 +171,10 @@ var BattleShipBoard = function() {
         wrapper.appendChild(square);
       }
     }
-  }
+  };
 
   return api;
-}
+};
 
 var INIT = 'init';
 var CHOOSING_POSITIONS = 'choosing-positions';
@@ -190,6 +191,7 @@ var BattleShips = function() {
   var player1;
   var player2;
 
+  var shotListener;
   var listener;
 
   function state(state) {
@@ -199,9 +201,7 @@ var BattleShips = function() {
     }
   }
 
-  function shotTaken(player, result) {
-    api.redraw();
-
+  api.shotTakenResult = function(player, result) {
     if (result.wonGame) {
       state(player ? PLAYER_WON : PLAYER_LOST);
       return;
@@ -216,11 +216,27 @@ var BattleShips = function() {
         state(PLAYER2_TURN);
         api.takeAITurn();
       } else {
-        setTimeout(function() {
-          state(PLAYER1_TURN);
-        }, 1000);
+        state(PLAYER1_TURN);
       }
     }
+  };
+
+  function fisherYates ( myArray ) {
+    var i = myArray.length;
+    if (i === 0) {
+      return false;
+    }
+    while (--i) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tempi = myArray[i];
+      var tempj = myArray[j];
+      myArray[i] = tempj;
+      myArray[j] = tempi;
+    }
+  }
+
+  function shotTaken(player, x, y, result) {
+    shotListener(player, x, y, result);
   }
 
   api.newGame = function() {
@@ -230,26 +246,27 @@ var BattleShips = function() {
     player2.chooseRandomShipLocations();
     state(CHOOSING_POSITIONS);
     api.redraw();
-  }
+  };
 
   api.startGame = function() {
     state(PLAYER1_TURN);
-  }
+  };
 
   var playerTurns = {};
-
   var randomTurns = [];
+
   for (var y = 0; y < BOARD_SIZE; y++) {
     for (var x = 0; x < BOARD_SIZE; x++) {
       randomTurns.push({x:x, y:y});
     }
   }
+  fisherYates(randomTurns);
 
   api.takeAITurn = function() {
     var turn = randomTurns.pop();
     var result = player1.takeShot(turn.x, turn.y);
-    shotTaken(false, result);
-  }
+    shotTaken(false, turn.x, turn.y, result);
+  };
 
   api.squareSelected = function(playersBoard, x, y) {
     if (playersBoard && playing === CHOOSING_POSITIONS) {
@@ -262,31 +279,33 @@ var BattleShips = function() {
       api.redraw();
     } else if (!playersBoard && playing === PLAYER1_TURN) {
       var key = x + ':' + y;
-      if (key in playerTurns) {
-        alert('you took that shot you idiot');
-      } else {
+      if (!(key in playerTurns)) {
         playerTurns[key] = true;
         var result = player2.takeShot(x, y);
-        shotTaken(true, result);
+        shotTaken(true, x, y, result);
       }
     }
-  }
+  };
 
-  api.redraw = function() {
+  api.redraw = function(showOppenent) {
     player1.drawBoard(document.getElementById('board-mine'), true);
-    player2.drawBoard(document.getElementById('board-opponent'), false);
+    player2.drawBoard(document.getElementById('board-opponent'), !!showOppenent);
   };
 
   api.onStateChange = function(callback) {
     listener = callback;
-  }
+  };
+
+  api.onShotTaken = function(callback) { 
+    shotListener = callback;
+  };
 
   api.player = function() {
     return player1;
-  }
+  };
 
   return api;
-}
+};
 
 var BattleShipUI = (function() {
 
@@ -295,14 +314,23 @@ var BattleShipUI = (function() {
   var ids = [
     'new-game', 'board-mine', 'board-opponent', 'clear-selection', 'game-status',
     'start-game', 'random-positions', 'rotate-ship', 'controls', 'view-opponents-board',
-    'view-my-board', 'battleships'
+    'view-my-board', 'battleships', 'present'
   ];
 
   var battleships = new BattleShips();
   var boardShown = null;
+  var blockSize = 0;
 
   function showBoard(players) {
     var newBoard = players ? dom.boardMine : dom.boardOpponent;
+    if (players) { 
+      dom.viewMyBoard.classList.add('selected');
+      dom.viewOpponentsBoard.classList.remove('selected');
+    } else { 
+      dom.viewOpponentsBoard.classList.add('selected');
+      dom.viewMyBoard.classList.remove('selected');
+    }
+
     if (boardShown !== newBoard) {
       if (boardShown) {
         boardShown.style.display = 'none';
@@ -344,10 +372,10 @@ var BattleShipUI = (function() {
 
   api.viewOpponentsBoard = function() {
     showBoard(false);
-  }
+  };
   api.viewMyBoard = function() {
     showBoard(true);
-  }
+  };
 
   function toCamelCase(str) {
     return str.replace(/\-(.)/g, function replacer(str, p1) {
@@ -390,14 +418,41 @@ var BattleShipUI = (function() {
       showBoard(true);
     } else if (state === PLAYER_WON) {
       dom.gameStatus.textContent = 'Yay you won';
+      battleships.redraw(true);
       showBoard(false);
     } else if (state === PLAYER_LOST) {
       dom.gameStatus.textContent = 'doh you lost';
+      battleships.redraw(true);
       showBoard(false);
     }
   });
 
+  battleships.onShotTaken(function(player, x, y, result) { 
+    
+    var complete = function() { 
+      dom.present.removeEventListener('transitionend', complete, true);
+      dom.gameStatus.textContent = result === false ? 'Miss!' : 'Hit!';
+      battleships.redraw();
+      setTimeout(function() { 
+        dom.present.style.display = 'none';
+        dom.present.clientTop;
+        battleships.shotTakenResult(player, result);      
+      }, 2000);
+    };
+
+    dom.present.style.left = x * blockSize + 'px';
+    dom.present.style.top = y * blockSize - 100 + 'px';
+    dom.present.style.display = 'block';
+
+    dom.present.clientTop;
+    dom.present.style.left = x * blockSize + 'px';
+    dom.present.style.top = y * blockSize + 'px';
+
+    dom.present.addEventListener('transitionend', complete, true);
+  });
+
   api.windowResize = function() {
+    blockSize = Math.floor(dom.battleships.clientWidth / 10);
     dom.battleships.style.height = dom.battleships.clientWidth + 'px';
   };
 

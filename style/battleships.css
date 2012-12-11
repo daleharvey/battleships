@@ -78,21 +78,43 @@ body {
   display: block;
 }
 
-#battleships {
-  overflow: auto;
-}
-
 #game-status {
   text-align: center;
 }
+
 #board-view {
   display: -moz-box;
   display: -webkit-box;
   width: 100%;
 }
+
 #board-view button {
   -moz-box-flex: 1;       /* Mozilla */
   -webkit-box-flex: 1;    /* WebKit */
   padding: 5px;
   border: 0;
+  opacity: 0.5;
+}
+
+#board-view button.selected {
+  background: blue;
+  opacity: 1;
+  color: white;
+}
+
+#present { 
+  display: none;
+  position: absolute;
+  top: 50px;
+  left: 50px;
+  background: url(img/present.svg);
+  background-size: 100%;
+  height: 24px;
+  width: 24px;
+  z-index: 500;
+  transition: all 0.5s ease-in;
+}
+
+#battleships { 
+  position: relative;
 }
