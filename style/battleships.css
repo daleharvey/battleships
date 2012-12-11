@@ -1,0 +1,98 @@
+body {
+  font-family: sans-serif;
+}
+
+#body-wrapper {
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.board {
+  height: 100%;
+  width: 100%;
+}
+
+.board div {
+  float: left;
+  width: 10%;
+  height: 10%;
+  text-align: center;
+  font-family: monospace;
+  line-height: 230%;
+  overflow: hidden;
+}
+
+.board div.selected {
+  background: orange;
+}
+
+#controls {
+  width: 100%;
+  display: -moz-box;
+  display: -webkit-box;
+}
+
+#controls button {
+  display: none;
+  -moz-box-flex: 1;       /* Mozilla */
+  -webkit-box-flex: 1;    /* WebKit */
+  padding: 5px;
+  border: 0;
+}
+
+#board-opponent {
+  background: pink;
+}
+
+#board-mine {
+  background: lightblue;
+}
+
+.ship {
+  background: blue;
+}
+
+.hit {
+  color: green;
+}
+
+.miss {
+  color: red;
+}
+
+#board-mine, #board-opponent {
+  display: none;
+}
+
+.choosing-positions #rotate-ship,
+.choosing-positions #random-positions,
+.choosing-positions #start-game  {
+  display: block;
+}
+
+.player1-turn #restart-game, .player2-turn #restart-game {
+  display: block;
+}
+
+.player-won #new-game, .player-lost #new-game {
+  display: block;
+}
+
+#battleships {
+  overflow: auto;
+}
+
+#game-status {
+  text-align: center;
+}
+#board-view {
+  display: -moz-box;
+  display: -webkit-box;
+  width: 100%;
+}
+#board-view button {
+  -moz-box-flex: 1;       /* Mozilla */
+  -webkit-box-flex: 1;    /* WebKit */
+  padding: 5px;
+  border: 0;
+}
