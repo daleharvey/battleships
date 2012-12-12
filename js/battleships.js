@@ -216,17 +216,21 @@ var BattleShips = function() {
 
     if (result !== false) {
       if (!player) {
-        api.takeAITurn();
+        setTimeout(api.takeAITurn, 2000);
       } else { 
         hasTakenShot = false;
       }
     } else {
       if (player) {
-        state(PLAYER2_TURN);
-        api.takeAITurn();
+        setTimeout(function() { 
+          state(PLAYER2_TURN);
+          api.takeAITurn();
+        }, 2000);
       } else {
-        state(PLAYER1_TURN);
-        hasTakenShot = false;
+        setTimeout(function() { 
+          state(PLAYER1_TURN);
+          hasTakenShot = false;
+        }, 2000);
       }
     }
   };
@@ -453,14 +457,12 @@ var BattleShipUI = (function() {
           'You sunk my ' + result.ship.name : 'Hit!';
         setTimeout(function() { 
           dom.gameStatus.textContent = 'Take your turn';
-        }, 1000);
+        }, 2000);
       } 
       dom.present.style.display = 'none';
       dom.present.clientTop;
       battleships.redraw();
-      setTimeout(function() { 
-        battleships.shotTakenResult(player, result);      
-      }, 2000);
+      battleships.shotTakenResult(player, result);      
     };
 
     dom.present.style.left = x * blockSize + 'px';
