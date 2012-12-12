@@ -167,12 +167,10 @@ var BattleShipBoard = function() {
         }
         if (state === BS.HIT) {
           square.classList.add('hit');
-          square.textContent = 'X';
         }
 
         if (state === BS.MISS) {
           square.classList.add('miss');
-          square.textContent = '1';
         }
 
         wrapper.appendChild(square);
@@ -219,6 +217,8 @@ var BattleShips = function() {
     if (result !== false) {
       if (!player) {
         api.takeAITurn();
+      } else { 
+        hasTakenShot = false;
       }
     } else {
       if (player) {
@@ -451,11 +451,14 @@ var BattleShipUI = (function() {
       } else {
         dom.gameStatus.textContent = result.ship.dead ?
           'You sunk my ' + result.ship.name : 'Hit!';
-      }
+        setTimeout(function() { 
+          dom.gameStatus.textContent = 'Take your turn';
+        }, 1000);
+      } 
+      dom.present.style.display = 'none';
+      dom.present.clientTop;
       battleships.redraw();
       setTimeout(function() { 
-        dom.present.style.display = 'none';
-        dom.present.clientTop;
         battleships.shotTakenResult(player, result);      
       }, 2000);
     };

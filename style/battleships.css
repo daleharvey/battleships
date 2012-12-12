@@ -29,10 +29,11 @@ body {
   line-height: 230%;
   overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.05);
+  background-repeat: no-repeat;
 }
 
 .board div.selected {
-  background: darkblue;
+  background-color: lightblue;
 }
 
 #controls {
@@ -58,15 +59,19 @@ body {
 /* } */
 
 .ship {
-  background: blue;
+  background-image: url(img/house.svg);
+  background-size: 100%;
+  /* background: blue; */
 }
 
 .hit {
-  color: green;
+  background-image: url(img/house_hit.svg);
+  background-size: 100%;
 }
 
 .miss {
-  color: red;
+  background-image: url(img/box.svg);
+  background-size: 100%;
 }
 
 #board-mine, #board-opponent {
