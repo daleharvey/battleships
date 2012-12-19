@@ -5,19 +5,36 @@
 }
 
 body {
-  font-family: sans-serif;
+  font-family:  'Droid Sans Mono', sans-serif;
   padding: 0;
   margin: 0;
+  background: #1C3003;
+  color: #B0E562;
+}
+
+button { 
+  font-family:  'Droid Sans Mono', sans-serif;
+  background: transparent;
+  color: #B0E562;
+}  
+
+h3 { 
+  font-size: 24px; 
+  font-weight: normal; 
+  margin: 0; 
+  line-height: 48px;
 }
 
 #body-wrapper {
-  max-width: 300px;
+  max-width: 320px;
   margin: 0 auto;
 }
 
 .board {
   height: 100%;
   width: 100%;
+  border: 1px solid rgba(175, 228, 90, 0.3);
+  border-width: 0 0 1px 1px;
 }
 
 .board div {
@@ -28,7 +45,9 @@ body {
   font-family: monospace;
   line-height: 230%;
   overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow:0 0 10px rgba(175, 228, 90, 0.2);
+  border: 1px solid rgba(175, 228, 90, 0.3);
+  border-width: 1px 1px 0 0;
   background-repeat: no-repeat;
 }
 
@@ -48,6 +67,7 @@ body {
   -webkit-box-flex: 1;
   padding: 5px;
   border: 0;
+  font-size: 16px;
 }
 
 /* #board-opponent { */
@@ -108,12 +128,11 @@ body {
   padding: 5px;
   border: 0;
   opacity: 0.5;
+  font-size: 16px;
 }
 
 #board-view button.selected {
-  background: #333;
   opacity: 1;
-  color: white;
 }
 
 #present { 
@@ -127,6 +146,7 @@ body {
   width: 24px;
   z-index: 500;
   transition: all 0.5s ease-in;
+  -webkit-transition: all 0.5s ease-in;
 }
 
 #battleships { 

@@ -447,9 +447,14 @@ var BattleShipUI = (function() {
   });
 
   battleships.onShotTaken(function(player, x, y, result) { 
-    
+
+    var hasRun = false;
+
     var complete = function() { 
+      if (hasRun) return;
+      hasRun = true;
       dom.present.removeEventListener('transitionend', complete, true);
+      dom.present.removeEventListener('webkitTransitionEnd', complete, true);
       if (result === false) {
         dom.gameStatus.textContent = 'Miss';
       } else {
@@ -474,6 +479,7 @@ var BattleShipUI = (function() {
     dom.present.style.top = y * blockSize + 'px';
 
     dom.present.addEventListener('transitionend', complete, true);
+    dom.present.addEventListener('webkitTransitionEnd', complete, true);
   });
 
   api.windowResize = function() {
