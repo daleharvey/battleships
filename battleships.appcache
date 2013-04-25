@@ -1,0 +1,17 @@
+CACHE MANIFEST
+# v1
+
+index.html
+
+js/battleships.js
+
+style/battleships.css
+
+style/img/battleship.png
+style/img/carrier.png
+style/img/destroyer.png
+style/img/hit.png
+style/img/miss.png
+style/img/missile.svg
+style/img/patrol.png
+style/img/sub.png
