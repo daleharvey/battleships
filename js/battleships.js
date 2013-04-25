@@ -30,6 +30,7 @@ var ShipDef = {
   }
 };
 
+var blockSize = 0;
 
 var BattleShipBoard = function() {
 
@@ -69,6 +70,14 @@ var BattleShipBoard = function() {
   api.rotateSelectedShip = function() {
     if (selected) {
       ships[selected].vertical = !ships[selected].vertical;
+      var canMove = api.moveShip(selected,
+                                 ships[selected].location.x,
+                                 ships[selected].location.y);
+      // If we cant move to the new position (puts us off board or blocked by
+      // another ship) then revert the rotation
+      if (!canMove) {
+        ships[selected].vertical = !ships[selected].vertical;
+      }
     }
   };
 
@@ -339,8 +348,6 @@ var BattleShips = function() {
   return api;
 };
 
-var blockSize = 0;
-
 var BattleShipUI = (function() {
 
   var api = {};
@@ -406,6 +413,7 @@ var BattleShipUI = (function() {
   api.viewOpponentsBoard = function() {
     showBoard(false);
   };
+
   api.viewMyBoard = function() {
     showBoard(true);
   };
@@ -464,7 +472,6 @@ var BattleShipUI = (function() {
   battleships.onShotTaken(function(player, x, y, result) {
 
     var hasRun = false;
-
     var complete = function() {
       if (hasRun) return;
       hasRun = true;
@@ -476,7 +483,7 @@ var BattleShipUI = (function() {
         dom.gameStatus.textContent = result.ship.dead ?
           'You sunk my ' + result.ship.name : 'Hit!';
         setTimeout(function() {
-          dom.gameStatus.textContent = 'Take your turn';
+          dom.gameStatus.textContent = 'Another turn';
         }, 2000);
       }
       dom.present.style.display = 'none';

@@ -1,0 +1,12 @@
+{
+  "name": "BattleShips",
+  "description": "BattleShips the game",
+  "developer": {
+    "name": "Dale Harvey",
+    "url": "http://arandomurl.com"
+  },
+  "icons": {
+    "60": "/style/icons/BattleShips60.png"
+  },
+  "orientation": "portrait-primary"
+}
