@@ -5,7 +5,7 @@
 }
 
 body {
-  font-family:  'Droid Sans Mono', sans-serif;
+  font-family:  monospace;
   padding: 0;
   margin: 0;
   background: #1C3003;
@@ -13,7 +13,7 @@ body {
 }
 
 button {
-  font-family:  'Droid Sans Mono', sans-serif;
+  font-family:  monospace;
   background: transparent;
   color: #B0E562;
 }
