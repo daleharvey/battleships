@@ -12,12 +12,12 @@ var ShipDef = {
     name: 'Submarine',
     size: 3
   },
-  battleShip: {
+  battleship: {
     name: 'BattleShip',
     size: 4
   },
   carrier: {
-    name: 'Aircraft Carrier',
+    name: 'Carrier',
     size: 5
   },
   destroyer: {
@@ -25,7 +25,7 @@ var ShipDef = {
     size: 3
   },
   patrol: {
-    name: 'Patrol Boat',
+    name: 'Patrol',
     size: 2
   }
 };
@@ -131,7 +131,7 @@ var BattleShipBoard = function() {
       var xy = ship.location;
 
       while (--size >= 0) {
-        var point = ship.vertical ? 
+        var point = ship.vertical ?
           {x: xy.x, y: xy.y + size} : {x: xy.x + size, y: xy.y};
         if (point.y === y && point.x === x) {
           return name;
@@ -150,21 +150,11 @@ var BattleShipBoard = function() {
     for (var y = 0; y < BOARD_SIZE; y++) {
       for (var x = 0; x < BOARD_SIZE; x++) {
         var state = boardState[y][x];
-        var ship = api.shipAtSquare(x, y);
-
         var square = document.createElement('div');
         square.setAttribute('data-x', x);
         square.setAttribute('data-y', y);
+        square.classList.add('square');
 
-        if (ship) {
-          if (showShips) {
-            square.classList.add('ship');
-          }
-
-          if (ship === selected) {
-            square.classList.add('selected');
-          }
-        }
         if (state === BS.HIT) {
           square.classList.add('hit');
         }
@@ -172,9 +162,33 @@ var BattleShipBoard = function() {
         if (state === BS.MISS) {
           square.classList.add('miss');
         }
-
         wrapper.appendChild(square);
       }
+    }
+
+    for (var name in ships) {
+      var ship = ships[name];
+
+      if (!showShips && !ship.dead) {
+        continue;
+      }
+
+      var shipElement = document.createElement('div');
+      shipElement.classList.add('ship');
+      shipElement.classList.add(name);
+      if (api.selectedShip() === name) {
+        shipElement.classList.add('selected');
+      }
+      shipElement.style.top = ship.location.y * blockSize + 'px';
+      shipElement.style.left = ship.location.x * blockSize + 'px';
+      shipElement.style.width = ship.size * blockSize + 'px';
+      shipElement.style.height = blockSize + 'px';
+
+      if (ship.vertical) {
+        shipElement.classList.add('vertical');
+        shipElement.style.left = ship.location.x * blockSize + blockSize + 'px';
+      }
+      wrapper.appendChild(shipElement);
     }
   };
 
@@ -217,17 +231,17 @@ var BattleShips = function() {
     if (result !== false) {
       if (!player) {
         setTimeout(api.takeAITurn, 2000);
-      } else { 
+      } else {
         hasTakenShot = false;
       }
     } else {
       if (player) {
-        setTimeout(function() { 
+        setTimeout(function() {
           state(PLAYER2_TURN);
           api.takeAITurn();
         }, 2000);
       } else {
-        setTimeout(function() { 
+        setTimeout(function() {
           state(PLAYER1_TURN);
           hasTakenShot = false;
         }, 2000);
@@ -314,7 +328,7 @@ var BattleShips = function() {
     listener = callback;
   };
 
-  api.onShotTaken = function(callback) { 
+  api.onShotTaken = function(callback) {
     shotListener = callback;
   };
 
@@ -324,6 +338,8 @@ var BattleShips = function() {
 
   return api;
 };
+
+var blockSize = 0;
 
 var BattleShipUI = (function() {
 
@@ -337,14 +353,13 @@ var BattleShipUI = (function() {
 
   var battleships = new BattleShips();
   var boardShown = null;
-  var blockSize = 0;
 
   function showBoard(players) {
     var newBoard = players ? dom.boardMine : dom.boardOpponent;
-    if (players) { 
+    if (players) {
       dom.viewMyBoard.classList.add('selected');
       dom.viewOpponentsBoard.classList.remove('selected');
-    } else { 
+    } else {
       dom.viewOpponentsBoard.classList.add('selected');
       dom.viewMyBoard.classList.remove('selected');
     }
@@ -430,10 +445,10 @@ var BattleShipUI = (function() {
       dom.gameStatus.textContent = 'Pick Positions';
       showBoard(true);
     } else if (state === PLAYER1_TURN) {
-      dom.gameStatus.textContent = 'Take your turn';
+      dom.gameStatus.textContent = 'SELECT TARGET';
       showBoard(false);
     } else if (state === PLAYER2_TURN) {
-      dom.gameStatus.textContent = 'Opponents Turn';
+      dom.gameStatus.textContent = 'ENEMY TURN';
       showBoard(true);
     } else if (state === PLAYER_WON) {
       dom.gameStatus.textContent = 'Yay you won';
@@ -446,11 +461,11 @@ var BattleShipUI = (function() {
     }
   });
 
-  battleships.onShotTaken(function(player, x, y, result) { 
+  battleships.onShotTaken(function(player, x, y, result) {
 
     var hasRun = false;
 
-    var complete = function() { 
+    var complete = function() {
       if (hasRun) return;
       hasRun = true;
       dom.present.removeEventListener('transitionend', complete, true);
@@ -460,22 +475,22 @@ var BattleShipUI = (function() {
       } else {
         dom.gameStatus.textContent = result.ship.dead ?
           'You sunk my ' + result.ship.name : 'Hit!';
-        setTimeout(function() { 
+        setTimeout(function() {
           dom.gameStatus.textContent = 'Take your turn';
         }, 2000);
-      } 
+      }
       dom.present.style.display = 'none';
       dom.present.clientTop;
       battleships.redraw();
-      battleships.shotTakenResult(player, result);      
+      battleships.shotTakenResult(player, result);
     };
 
-    dom.present.style.left = x * blockSize + 'px';
-    dom.present.style.top = y * blockSize - 100 + 'px';
+    dom.present.style.left = x * blockSize + 6 + 'px';
+    dom.present.style.top = y * blockSize - 150 + 'px';
     dom.present.style.display = 'block';
 
     dom.present.clientTop;
-    dom.present.style.left = x * blockSize + 'px';
+    dom.present.style.left = x * blockSize + 6 + 'px';
     dom.present.style.top = y * blockSize + 'px';
 
     dom.present.addEventListener('transitionend', complete, true);

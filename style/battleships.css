@@ -12,16 +12,16 @@ body {
   color: #B0E562;
 }
 
-button { 
+button {
   font-family:  'Droid Sans Mono', sans-serif;
   background: transparent;
   color: #B0E562;
-}  
+}
 
-h3 { 
-  font-size: 24px; 
-  font-weight: normal; 
-  margin: 0; 
+h3 {
+  font-size: 24px;
+  font-weight: normal;
+  margin: 0;
   line-height: 48px;
 }
 
@@ -37,7 +37,7 @@ h3 {
   border-width: 0 0 1px 1px;
 }
 
-.board div {
+.board div.square {
   float: left;
   width: 10%;
   height: 10%;
@@ -49,10 +49,6 @@ h3 {
   border: 1px solid rgba(175, 228, 90, 0.3);
   border-width: 1px 1px 0 0;
   background-repeat: no-repeat;
-}
-
-.board div.selected {
-  background-color: lightblue;
 }
 
 #controls {
@@ -70,6 +66,13 @@ h3 {
   font-size: 16px;
 }
 
+#vignette {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 100%);
+  pointer-events: none;
+}
 /* #board-opponent { */
 /*   background: pink; */
 /* } */
@@ -78,19 +81,46 @@ h3 {
 /*   background: lightblue; */
 /* } */
 
+.destroyer { background-image: url(img/destroyer.png); }
+.sub { background-image: url(img/sub.png); }
+.battleship { background-image: url(img/battleship.png); }
+.carrier { background-image: url(img/carrier.png); }
+.patrol { background-image: url(img/patrol.png); }
+
 .ship {
-  background-image: url(img/house.svg);
-  background-size: 100%;
-  /* background: blue; */
+  position: absolute;
+  background-repeat: no-repeat;
+  pointer-events: none;
 }
 
+.choosing-positions .ship {
+  opacity: 0.5;
+}
+
+.choosing-positions .ship.selected {
+  opacity: 1;
+}
+
+.vertical {
+  transform-origin: 0 0;
+  transform: rotate(90deg);
+  -webkit-transform: rotate(90deg);
+  -webkit-transform-origin: 0 0;
+}
+
+/* .ship { */
+/*   background-size: 100%; */
+/*   background: blue; */
+/* } */
+
 .hit {
-  background-image: url(img/house_hit.svg);
+  background-image: url(img/hit.png);
   background-size: 100%;
 }
 
 .miss {
-  background-image: url(img/box.svg);
+  background-image: url(img/miss.png);
+  opacity: 0.7;
   background-size: 100%;
 }
 
@@ -123,6 +153,7 @@ h3 {
 }
 
 #board-view button {
+  display: block;
   -moz-box-flex: 1;       /* Mozilla */
   -webkit-box-flex: 1;    /* WebKit */
   padding: 5px;
@@ -135,13 +166,14 @@ h3 {
   opacity: 1;
 }
 
-#present { 
+#present {
   display: none;
   position: absolute;
   top: 50px;
   left: 50px;
-  background: url(img/present.svg);
+  background: url(img/missile.svg);
   background-size: 100%;
+  background-position: center center;
   height: 24px;
   width: 24px;
   z-index: 500;
@@ -149,6 +181,6 @@ h3 {
   -webkit-transition: all 0.5s ease-in;
 }
 
-#battleships { 
+#battleships {
   position: relative;
 }
