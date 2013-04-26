@@ -6,7 +6,7 @@
     "url": "http://arandomurl.com"
   },
   "icons": {
-    "60": "/style/icons/BattleShips60.png"
+    "128": "/style/icons/BattleShips.png"
   },
   "orientation": "portrait-primary"
 }
