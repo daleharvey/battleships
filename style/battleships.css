@@ -171,4 +171,21 @@ h3 {
 
 #battleships {
   position: relative;
+  overflow: hidden;
+}
+
+#lineytheline {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 1px;
+  box-shadow: 0 0 25px 5px rgba(175, 228, 90, 0.2);
+  border-top: 1px solid rgba(175, 228, 90, 0.6);
+  animation: lineygoroundround 4s infinite linear;
+  transform-origin: 0% 0%;
+}
+@keyframes lineygoroundround {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
