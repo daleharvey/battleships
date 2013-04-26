@@ -224,6 +224,10 @@ var BattleShips = function() {
   var shotListener;
   var listener;
 
+  var playerTurns = {};
+  var randomTurns = [];
+  var hitList = [];
+
   function state(state) {
     playing = state;
     if (listener) {
@@ -258,7 +262,7 @@ var BattleShips = function() {
     }
   };
 
-  function fisherYates ( myArray ) {
+  function fisherYates(myArray) {
     var i = myArray.length;
     if (i === 0) {
       return false;
@@ -274,6 +278,70 @@ var BattleShips = function() {
 
   function shotTaken(player, x, y, result) {
     shotListener(player, x, y, result);
+  }
+
+  // Find the first adjacent square(north / south / east west) of point
+  function findAdjacent(point, turns) {
+    var p, i;
+    for (i = 0; i < turns.length; i++) {
+      p = turns[i];
+      var isAdjacent =
+        (p.x === point.x && (p.y === (point.y + 1) || p.y === (point.y - 1))) ||
+        (p.y === point.y && (p.x === (point.x + 1) || p.x === (point.x - 1)));
+
+      if (isAdjacent) {
+        return p;
+      }
+    }
+    return false;
+  }
+
+  // Pretty ugly, find the 2 square at either end of the path formed by
+  // 'points', pick the first left in turns
+  function findPath(points, turns) {
+    var axis = points[0].x === points[1].x ? 'y' : 'x';
+    var otherAxis = axis === 'x' ? 'y' : 'x';
+    var start = {}, end = {};
+    var p, i, min, max;
+    min = max = points[0][axis];
+    for (i = 0; i < points.length; i++) {
+      min = Math.min(points[i][axis], min);
+      max = Math.max(points[i][axis], max);
+    }
+    start[axis] = min - 1;
+    start[otherAxis] = points[0][otherAxis];
+    end[axis] = max + 1;
+    end[otherAxis] = points[0][otherAxis];
+    for (i = 0; i < turns.length; i++) {
+      p = turns[i];
+      if (p.x === start.x && p.y === start.y ||
+          p.x === end.x && p.y === end.y) {
+        return p;
+      }
+    }
+    return false;
+  }
+
+  // This is a pretty simple AI that tries to guess the next best shot if the
+  // previous shots were hits, if we hit adjoining ships then it will get confused
+  // and start again, with no previous hits its just random.
+  function pickNextShot() {
+    var point = false;
+    if (hitList.length === 1) {
+      // If we have previously hit a ship once, then pick the next adjacent
+      // spot
+      point = findAdjacent(hitList[0], randomTurns);
+    } else if (hitList.length > 1) {
+      // If we have had more than 1 previous hit, pick the first point along the same
+      // path
+      point = findPath(hitList, randomTurns);
+    }
+    if (point) {
+      randomTurns = randomTurns.filter(function(p) {
+        return !(p.x === point.x && p.y === point.y);
+      });
+    }
+    return point;
   }
 
   api.newGame = function() {
@@ -292,9 +360,6 @@ var BattleShips = function() {
     state(PLAYER1_TURN);
   };
 
-  var playerTurns = {};
-  var randomTurns = [];
-
   for (var y = 0; y < BOARD_SIZE; y++) {
     for (var x = 0; x < BOARD_SIZE; x++) {
       randomTurns.push({x:x, y:y});
@@ -303,8 +368,21 @@ var BattleShips = function() {
   fisherYates(randomTurns);
 
   api.takeAITurn = function() {
-    var turn = randomTurns.pop();
+    var turn = pickNextShot();
+    // We cant find any more points searching for the current ship
+    if (!turn) {
+      hitList = [];
+      turn = randomTurns.pop();
+    }
     var result = player1.takeShot(turn.x, turn.y);
+    if (result !== false) {
+      if (result.ship.dead) {
+        hitList = [];
+      } else {
+        hitList.push(turn);
+      }
+    }
+
     shotTaken(false, turn.x, turn.y, result);
   };
 
