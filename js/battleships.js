@@ -591,6 +591,23 @@ var BattleShipUI = (function() {
   api.windowResize();
   battleships.newGame();
 
+  // The first time someone visits this game in a device that supports
+  // installation, ask if they want to install it.
+  if (navigator.mozApps && !localStorage.getItem('checkedInstall')) {
+    localStorage.setItem('checkedInstall', 'true');
+
+    var request = navigator.mozApps.getSelf();
+    request.onsuccess = function() {
+      if (!this.result) {
+        var install = confirm('Do you want to install BattleShips?');
+        if (install) {
+          var manifestUrl = location.protocol + "//" + location.host + location.pathname + "manifest.webapp";
+          navigator.mozApps.install(manifestUrl);
+        }
+      }
+    }
+  }
+
   return api;
 
 })();
