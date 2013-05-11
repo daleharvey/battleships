@@ -228,6 +228,8 @@ var BattleShips = function() {
   var randomTurns = [];
   var hitList = [];
 
+  var shotTimer;
+
   function state(state) {
     playing = state;
     if (listener) {
@@ -243,18 +245,18 @@ var BattleShips = function() {
 
     if (result !== false) {
       if (!player) {
-        setTimeout(api.takeAITurn, 2000);
+        shotTimer = setTimeout(api.takeAITurn, 2000);
       } else {
         hasTakenShot = false;
       }
     } else {
       if (player) {
-        setTimeout(function() {
+        shotTimer = setTimeout(function() {
           state(PLAYER2_TURN);
           api.takeAITurn();
         }, 2000);
       } else {
-        setTimeout(function() {
+        shotTimer = setTimeout(function() {
           state(PLAYER1_TURN);
           hasTakenShot = false;
         }, 2000);
@@ -345,8 +347,25 @@ var BattleShips = function() {
   }
 
   api.newGame = function() {
+
+    if (shotTimer) {
+      clearTimeout(shotTimer);
+    }
+    hasTakenShot = false;
+
     player1 = new BattleShipBoard();
     player2 = new BattleShipBoard();
+
+    playerTurns = {};
+    randomTurns = [];
+
+    for (var y = 0; y < BOARD_SIZE; y++) {
+      for (var x = 0; x < BOARD_SIZE; x++) {
+        randomTurns.push({x:x, y:y});
+      }
+    }
+    fisherYates(randomTurns);
+
     player1.chooseRandomShipLocations();
     player2.chooseRandomShipLocations();
     player1.selectShip('carrier');
@@ -359,13 +378,6 @@ var BattleShips = function() {
     api.redraw();
     state(PLAYER1_TURN);
   };
-
-  for (var y = 0; y < BOARD_SIZE; y++) {
-    for (var x = 0; x < BOARD_SIZE; x++) {
-      randomTurns.push({x:x, y:y});
-    }
-  }
-  fisherYates(randomTurns);
 
   api.takeAITurn = function() {
     var turn = pickNextShot();
