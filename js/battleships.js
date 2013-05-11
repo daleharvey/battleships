@@ -549,18 +549,20 @@ var BattleShipUI = (function() {
       dom.gameStatus.textContent = 'ENEMY TURN';
       showBoard(true);
     } else if (state === PLAYER_WON) {
+      if (promptTimer) clearTimeout(promptTimer);
       dom.gameStatus.textContent = 'Yay you won';
       battleships.redraw(true);
       showBoard(false);
     } else if (state === PLAYER_LOST) {
+      if (promptTimer) clearTimeout(promptTimer);
       dom.gameStatus.textContent = 'doh you lost';
       battleships.redraw(true);
       showBoard(false);
     }
   });
 
+  var promptTimer;
   battleships.onShotTaken(function(player, x, y, result) {
-
     var hasRun = false;
     var complete = function() {
       if (hasRun) return;
@@ -572,7 +574,7 @@ var BattleShipUI = (function() {
       } else {
         dom.gameStatus.textContent = result.ship.dead ?
           'You sunk my ' + result.ship.name : 'Hit!';
-        setTimeout(function() {
+        promptTimer = setTimeout(function() {
           dom.gameStatus.textContent = 'Another turn';
         }, 2000);
       }
